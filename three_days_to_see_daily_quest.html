@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three Days to See – Daily Quest</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sky: { 50: '#f0f9ff', 100: '#e0f2fe', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' },
+                        sunshine: { 100: '#fef9c3', 300: '#fde047', 400: '#facc15', 500: '#eab308' },
+                        freshgreen: { 100: '#dcfce7', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a' },
+                        coral: { 100: '#ffedd5', 400: '#fb923c', 500: '#f97316', 600: '#ea580c' },
+                        peach: '#ffedd5',
+                        pinksoft: '#fbcfe8'
+                    },
+                    fontFamily: {
+                        display: ['Fredoka', 'sans-serif'],
+                        body: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #fef9c3 50%, #fbcfe8 100%);
+            color: #1e293b;
+            min-height: 100vh;
+        }
+
+        .font-display { font-family: 'Fredoka', sans-serif; }
+
+        .bright-card {
+            background: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 3px solid #f0f9ff;
+        }
+
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+            border: 2px solid #e2e8f0;
+        }
+        .option-btn:hover {
+            transform: translateY(-2px);
+            border-color: #38bdf8;
+            background-color: #f0f9ff;
+        }
+
+        .pulse-gentle {
+            animation: pulse-subtle 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-subtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* Confetti Burst Animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #facc15;
+            animation: confetti-fall 2s ease-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(200px) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header / HUD -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b-4 border-sky-200 px-4 py-3 shadow-sm">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
+            
+            <!-- Logo / Title -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="game.showHome()">
+                <div class="w-11 h-11 rounded-2xl bg-sunshine-400 flex items-center justify-center text-slate-800 font-bold text-2xl shadow-md">
+                    ☀️
+                </div>
+                <div>
+                    <h1 class="font-display text-lg md:text-xl font-bold text-sky-600 tracking-wide">Three Days to See</h1>
+                    <p class="text-xs text-slate-500 font-semibold">Grade 7 CBSE • Daily Quest</p>
+                </div>
+            </div>
+
+            <!-- Star Counter & Audio Toggle -->
+            <div class="flex items-center gap-3">
+                <div class="bg-sunshine-100 border-2 border-sunshine-400 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
+                    <span class="text-xl">⭐</span>
+                    <span id="star-count" class="font-display text-lg font-bold text-amber-700">0 / 6</span>
+                </div>
+
+                <button onclick="game.toggleSound()" id="sound-btn" class="w-10 h-10 rounded-full bg-sky-100 hover:bg-sky-200 text-sky-600 flex items-center justify-center font-bold transition">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-3xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+
+        <!-- SCREEN: WELCOME / START -->
+        <div id="screen-welcome" class="screen-view space-y-6 text-center">
+            <div class="bright-card p-6 md:p-10 space-y-6">
+                <div class="w-20 h-20 bg-sky-100 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner border-2 border-sky-300">
+                    📖
+                </div>
+                
+                <div class="space-y-2">
+                    <span class="bg-sunshine-300 text-amber-900 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Classroom Learning Activity</span>
+                    <h2 class="font-display text-3xl md:text-4xl font-bold text-sky-600">Three Days to See</h2>
+                    <p class="text-slate-600 text-base md:text-lg max-w-xl mx-auto font-medium">
+                        Welcome! Accompany Helen Keller on a 3-day quest to discover what she wished to see and learn to appreciate the world around you.
+                    </p>
+                </div>
+
+                <!-- 3 Days Preview Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+                    <div class="bg-amber-50 p-3.5 rounded-2xl border-2 border-amber-200 flex items-center gap-3">
+                        <span class="text-2xl">🌅</span>
+                        <div>
+                            <p class="font-display font-bold text-amber-900 text-sm">Day 1: People</p>
+                            <p class="text-xs text-amber-700">2 Missions</p>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-50 p-3.5 rounded-2xl border-2 border-emerald-200 flex items-center gap-3">
+                        <span class="text-2xl">🌿</span>
+                        <div>
+                            <p class="font-display font-bold text-emerald-900 text-sm">Day 2: Nature</p>
+                            <p class="text-xs text-emerald-700">2 Missions</p>
+                        </div>
+                    </div>
+                    <div class="bg-sky-50 p-3.5 rounded-2xl border-2 border-sky-200 flex items-center gap-3">
+                        <span class="text-2xl">🏙️</span>
+                        <div>
+                            <p class="font-display font-bold text-sky-900 text-sm">Day 3: World</p>
+                            <p class="text-xs text-sky-700">2 Missions</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="game.startQuest()" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-sunshine-400 hover:bg-sunshine-300 text-slate-900 font-display font-bold text-xl transition shadow-lg shadow-sunshine-300/50 pulse-gentle flex items-center justify-center gap-3 mx-auto">
+                    <span>Start Daily Quest</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN: QUEST RUNNER (Handles all 3 Days & 6 Missions) -->
+        <div id="screen-quest" class="screen-view space-y-5 hidden">
+            
+            <!-- Day & Mission Header Banner -->
+            <div id="quest-banner" class="bright-card p-4 flex items-center justify-between bg-gradient-to-r from-sky-100 via-white to-sunshine-100 border-2 border-sky-300">
+                <div class="flex items-center gap-3">
+                    <span id="quest-day-icon" class="text-3xl">🌅</span>
+                    <div>
+                        <span id="quest-day-title" class="font-display text-sm font-bold text-sky-600 uppercase tracking-wide">DAY 1 — PEOPLE</span>
+                        <h3 id="quest-mission-title" class="font-display text-lg font-bold text-slate-800">Mission 1 of 2</h3>
+                    </div>
+                </div>
+                <div id="quest-progress-dots" class="flex gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-sky-400"></span>
+                    <span class="w-3 h-3 rounded-full bg-slate-200"></span>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bright-card p-6 md:p-8 space-y-6 relative overflow-hidden" id="main-question-card">
+                
+                <!-- Nature Illustration placeholder for Day 2 -->
+                <div id="nature-image-container" class="hidden w-full h-40 rounded-2xl bg-gradient-to-r from-emerald-100 to-sky-100 border-2 border-emerald-300 flex items-center justify-center p-4 text-center">
+                    <div class="space-y-1">
+                        <div class="text-4xl">🌄🌸🐦</div>
+                        <p class="text-xs font-bold text-emerald-800">Helen Keller's World of Nature</p>
+                    </div>
+                </div>
+
+                <!-- Question Text -->
+                <div class="space-y-2">
+                    <p id="question-text" class="font-display text-xl md:text-2xl font-bold text-slate-800 leading-snug">
+                        Question loading...
+                    </p>
+                </div>
+
+                <!-- Options Grid -->
+                <div id="options-container" class="grid grid-cols-1 gap-3">
+                    <!-- Dynamic option buttons -->
+                </div>
+
+                <!-- Instant Feedback Banner (Correct / Try Again) -->
+                <div id="feedback-box" class="hidden p-4 rounded-2xl border-2 text-sm font-bold flex items-center gap-3 transition">
+                    <span id="feedback-icon" class="text-2xl">🎉</span>
+                    <p id="feedback-text" class="flex-1">Feedback text goes here.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN: DAY COMPLETE CELEBRATION -->
+        <div id="screen-day-complete" class="screen-view space-y-6 text-center hidden">
+            <div class="bright-card p-8 md:p-10 space-y-6 border-4 border-sunshine-400 bg-gradient-to-b from-white to-sunshine-50">
+                <div class="text-6xl animate-bounce">🌟</div>
+                
+                <div class="space-y-2">
+                    <h2 id="day-complete-title" class="font-display text-3xl font-bold text-amber-600">Day 1 Complete!</h2>
+                    <p id="day-complete-subtitle" class="text-slate-600 font-medium">You earned 2 Stars for understanding Helen Keller's feelings!</p>
+                </div>
+
+                <div id="day-complete-explanation" class="p-4 bg-white rounded-2xl border-2 border-sunshine-200 text-slate-700 text-sm text-left leading-relaxed">
+                    <!-- Dynamic explanation summary -->
+                </div>
+
+                <button onclick="game.continueToNextDay()" class="px-8 py-3.5 rounded-2xl bg-freshgreen-500 hover:bg-freshgreen-600 text-white font-display font-bold text-lg transition shadow-md flex items-center justify-center gap-2 mx-auto">
+                    <span>Continue Quest</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN: LEARNING SUMMARY -->
+        <div id="screen-summary" class="screen-view space-y-6 hidden">
+            <div class="bright-card p-6 md:p-8 space-y-6">
+                <div class="text-center space-y-2">
+                    <span class="text-3xl">🧠</span>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-sky-600">What Did We Learn?</h2>
+                    <p class="text-slate-500 text-sm">Key takeaways from Helen Keller's "Three Days to See"</p>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-200 flex items-start gap-3">
+                        <span class="text-xl">❤️</span>
+                        <div>
+                            <p class="font-display font-bold text-amber-900 text-base">1. Loved Ones First</p>
+                            <p class="text-xs text-amber-800">Helen Keller valued the people she loved above everything else.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200 flex items-start gap-3">
+                        <span class="text-xl">🌿</span>
+                        <div>
+                            <p class="font-display font-bold text-emerald-900 text-base">2. Beauty in Nature</p>
+                            <p class="text-xs text-emerald-800">She wanted to appreciate the miraculous sunrise, plants, and natural beauty.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-sky-50 border-2 border-sky-200 flex items-start gap-3">
+                        <span class="text-xl">🌍</span>
+                        <div>
+                            <p class="font-display font-bold text-sky-900 text-base">3. The Wider World</p>
+                            <p class="text-xs text-sky-800">She wanted to see city life, art in museums, and everyday working people.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-pink-50 border-2 border-pink-200 flex items-start gap-3">
+                        <span class="text-xl">👁️</span>
+                        <div>
+                            <p class="font-display font-bold text-pink-900 text-base">4. Gratitude for Our Senses</p>
+                            <p class="text-xs text-pink-800">The lesson teaches us to appreciate our sight, hearing, and senses every single day.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="game.showFinalScreen()" class="w-full py-4 rounded-2xl bg-sunshine-400 hover:bg-sunshine-300 text-slate-900 font-display font-bold text-lg transition shadow-md flex items-center justify-center gap-2">
+                    <span>View Final Results</span>
+                    <i class="fa-solid fa-trophy"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN: FINAL SCREEN -->
+        <div id="screen-final" class="screen-view space-y-6 text-center hidden">
+            <div class="bright-card p-6 md:p-10 space-y-6 border-4 border-sunshine-400">
+                
+                <div class="space-y-2">
+                    <span class="text-5xl">🏆</span>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-amber-600">THREE DAYS TO SEE — COMPLETE!</h2>
+                    <p class="text-slate-600 text-sm font-medium">You completed all 3 Daily Quests!</p>
+                </div>
+
+                <!-- Stars Collected -->
+                <div class="p-5 rounded-2xl bg-sunshine-100 border-2 border-sunshine-300 inline-block w-full max-w-sm">
+                    <p class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">Stars Collected</p>
+                    <div class="text-3xl font-display font-bold text-amber-600 flex items-center justify-center gap-1">
+                        <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
+                    </div>
+                    <p id="final-star-text" class="text-sm font-bold text-amber-900 mt-1">6 out of 6 Stars!</p>
+                </div>
+
+                <!-- Reflection Prompt -->
+                <div class="text-left bg-sky-50 p-5 rounded-2xl border-2 border-sky-200 space-y-3">
+                    <label for="reflection-input" class="font-display font-bold text-sky-900 text-sm flex items-center gap-2">
+                        <span>💭 Reflection Question:</span>
+                    </label>
+                    <p class="text-xs text-slate-600">"What is one thing you appreciate seeing every day?"</p>
+                    <textarea id="reflection-input" rows="3" placeholder="Type your answer here..." class="w-full p-3 rounded-xl border-2 border-sky-200 text-sm text-slate-800 focus:outline-none focus:border-sky-500 transition resize-none bg-white"></textarea>
+                    <button onclick="game.saveReflection()" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-display text-xs font-bold rounded-xl transition">
+                        Save Answer
+                    </button>
+                    <p id="reflection-msg" class="text-xs text-freshgreen-600 font-bold hidden">✓ Reflection saved!</p>
+                </div>
+
+                <!-- Closing Message -->
+                <div class="p-4 rounded-2xl bg-coral-100 border-2 border-coral-400 text-coral-900 font-display font-bold text-base">
+                    "Look around. There is beauty in everyday life." ❤️
+                </div>
+
+                <div class="flex justify-center gap-3">
+                    <button onclick="game.restartQuest()" class="px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-display font-bold text-sm transition">
+                        Play Again 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Web Audio Synthesizer for cheerful sound effects
+        class GameSound {
+            constructor() {
+                this.audioCtx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.audioCtx) {
+                    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playTone(freq, type, duration, delay = 0) {
+                if (this.muted) return;
+                this.init();
+                setTimeout(() => {
+                    try {
+                        const osc = this.audioCtx.createOscillator();
+                        const gain = this.audioCtx.createGain();
+                        osc.type = type;
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + duration);
+                        osc.connect(gain);
+                        gain.connect(this.audioCtx.destination);
+                        osc.start();
+                        osc.stop(this.audioCtx.currentTime + duration);
+                    } catch (e) {}
+                }, delay);
+            }
+
+            correct() {
+                this.playTone(523.25, 'sine', 0.1, 0);   // C5
+                this.playTone(659.25, 'sine', 0.15, 80);  // E5
+                this.playTone(783.99, 'sine', 0.2, 160);  // G5
+            }
+
+            tryAgain() {
+                this.playTone(300, 'triangle', 0.15, 0);
+                this.playTone(250, 'triangle', 0.2, 100);
+            }
+        }
+
+        const sound = new GameSound();
+
+        // 3 Days Data (2 Missions per Day)
+        const questData = {
+            day1: {
+                dayTitle: "DAY 1 — PEOPLE",
+                dayIcon: "🌅",
+                missions: [
+                    {
+                        type: "mcq",
+                        missionNum: 1,
+                        question: "Who would Helen Keller want to see first on her first day of sight?",
+                        options: [
+                            { text: "Strangers on the street only", correct: false },
+                            { text: "The people she loves, cares about, and her teacher Anne Sullivan", correct: true },
+                            { text: "Only farm animals", correct: false },
+                            { text: "Nobody at all", correct: false }
+                        ],
+                        hint: "Think about who brought love, kindness, and education into Helen's life."
+                    },
+                    {
+                        type: "mcq",
+                        missionNum: 2,
+                        question: "Why would Helen want to look closely at the faces of the people she loves?",
+                        options: [
+                            { text: "To judge their clothing and hairstyles", correct: false },
+                            { text: "To see the living evidence of love, kindness, and warmth that she could only feel before", correct: true },
+                            { text: "To check how tall they are", correct: false }
+                        ],
+                        hint: "Through sight, Helen wanted to behold the outward expressions of affection in her loved ones' eyes.",
+                        explanation: "By looking closely at their faces, Helen could see the real warmth, humor, and tender emotions that touch could only partially show."
+                    }
+                ],
+                completionTitle: "🌟 Day 1 Complete!",
+                completionText: "You completed Day 1! Helen teaches us that the people who love and care for us are the most precious sight in the world."
+            },
+            day2: {
+                dayTitle: "DAY 2 — NATURE",
+                dayIcon: "🌿",
+                missions: [
+                    {
+                        type: "mcq",
+                        missionNum: 1,
+                        showNatureImage: true,
+                        question: "What would Helen want to observe carefully in nature on her second day?",
+                        options: [
+                            { text: "Dull gray concrete roads", correct: false },
+                            { text: "The miraculous sunrise at dawn, colorful flowers, trees, and flying birds", correct: true },
+                            { text: "Indoor power switches", correct: false }
+                        ],
+                        hint: "Helen deeply loved nature! Think about the beautiful natural world at dawn."
+                    },
+                    {
+                        type: "mcq",
+                        missionNum: 2,
+                        question: "What does Helen's desire to see nature teach us?",
+                        options: [
+                            { text: "We should ignore nature and stay indoors all day.", correct: false },
+                            { text: "We should open our eyes and appreciate the natural beauty around us.", correct: true },
+                            { text: "Nature is uninteresting and unimportant.", correct: false },
+                            { text: "Plants do not matter.", correct: false }
+                        ],
+                        hint: "Helen reminds us that seeing people often take nature for granted.",
+                        explanation: "Helen reminds us that those who can see often notice very little. We should open our eyes and appreciate the wonders of nature every day!"
+                    }
+                ],
+                completionTitle: "🌿 Day 2 Complete!",
+                completionText: "You completed Day 2! You discovered how Helen cherished sunrise, trees, flowers, and the natural beauty around us."
+            },
+            day3: {
+                dayTitle: "DAY 3 — THE WORLD AROUND US",
+                dayIcon: "🏙️",
+                missions: [
+                    {
+                        type: "mcq",
+                        missionNum: 1,
+                        question: "On her third day, what would Helen want to experience in the wider world?",
+                        options: [
+                            { text: "Stay alone in a dark room", correct: false },
+                            { text: "The busy city life, museums, plays at the theatre, and everyday working people", correct: true },
+                            { text: "A completely empty desert island", correct: false }
+                        ],
+                        hint: "Helen wanted to see how ordinary people live, work, and express art in daily life."
+                    },
+                    {
+                        type: "personal_choice",
+                        missionNum: 2,
+                        question: "If you could see the world for only three days, what would you most want to see?",
+                        options: [
+                            { text: "🌳 The beauty of nature & mountains", choiceMsg: "Nature holds endless wonder!" },
+                            { text: "👨‍👩‍👧 My family & loved ones", choiceMsg: "Family and friends bring the true light to life!" },
+                            { text: "🏙️ Bustling cities & famous landmark places", choiceMsg: "The energy of human life is truly incredible!" },
+                            { text: "🎨 Art, theatre & creative masterpieces", choiceMsg: "Art lets us see into human imagination!" }
+                        ],
+                        explanation: "Everyone sees the world in a different way! Helen Keller teaches us to appreciate every moment and every sight."
+                    }
+                ],
+                completionTitle: "🎉 Three Days Complete!",
+                completionText: "You completed all 3 Days! You have journeyed through Helen Keller's perspective and learned to appreciate your senses."
+            }
+        };
+
+        class DailyQuestGame {
+            constructor() {
+                this.stars = 0;
+                this.currentDayIndex = 1; // 1, 2, or 3
+                this.currentMissionIndex = 0; // 0 or 1
+                this.isLockedForAdvance = false;
+            }
+
+            init() {
+                this.updateHUD();
+            }
+
+            updateHUD() {
+                document.getElementById('star-count').innerText = `${this.stars} / 6`;
+            }
+
+            toggleSound() {
+                sound.muted = !sound.muted;
+                const icon = document.getElementById('sound-icon');
+                if (sound.muted) {
+                    icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+                } else {
+                    icon.className = 'fa-solid fa-volume-high text-sky-600';
+                    sound.correct();
+                }
+            }
+
+            showScreen(screenId) {
+                document.querySelectorAll('.screen-view').forEach(s => s.classList.add('hidden'));
+                const target = document.getElementById(`screen-${screenId}`);
+                if (target) {
+                    target.classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            showHome() {
+                this.showScreen('welcome');
+            }
+
+            startQuest() {
+                this.currentDayIndex = 1;
+                this.currentMissionIndex = 0;
+                this.stars = 0;
+                this.updateHUD();
+                this.loadMission();
+            }
+
+            loadMission() {
+                this.isLockedForAdvance = false;
+                const dayKey = `day${this.currentDayIndex}`;
+                const dayData = questData[dayKey];
+                const mission = dayData.missions[this.currentMissionIndex];
+
+                // Update Banner
+                document.getElementById('quest-day-icon').innerText = dayData.dayIcon;
+                document.getElementById('quest-day-title').innerText = dayData.dayTitle;
+                document.getElementById('quest-mission-title').innerText = `Mission ${mission.missionNum} of 2`;
+
+                // Progress Dots
+                const dots = document.getElementById('quest-progress-dots');
+                dots.innerHTML = `
+                    <span class="w-3 h-3 rounded-full ${this.currentMissionIndex >= 0 ? 'bg-sky-500' : 'bg-slate-200'}"></span>
+                    <span class="w-3 h-3 rounded-full ${this.currentMissionIndex >= 1 ? 'bg-sky-500' : 'bg-slate-200'}"></span>
+                `;
+
+                // Image Container
+                const imgBox = document.getElementById('nature-image-container');
+                if (mission.showNatureImage) {
+                    imgBox.classList.remove('hidden');
+                } else {
+                    imgBox.classList.add('hidden');
+                }
+
+                // Question Text
+                document.getElementById('question-text').innerText = mission.question;
+
+                // Hide Feedback Box
+                const fbBox = document.getElementById('feedback-box');
+                fbBox.classList.add('hidden');
+
+                // Render Options
+                const optionsContainer = document.getElementById('options-container');
+                optionsContainer.innerHTML = '';
+
+                mission.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn w-full text-left p-4 rounded-2xl bg-white hover:bg-sky-50 font-medium text-slate-800 text-base md:text-lg flex items-center justify-between shadow-sm';
+                    btn.onclick = () => this.handleOptionClick(idx, opt, mission);
+                    btn.innerHTML = `
+                        <span class="pr-2">${opt.text}</span>
+                        <i class="fa-solid fa-circle-chevron-right text-sky-400"></i>
+                    `;
+                    optionsContainer.appendChild(btn);
+                });
+
+                this.showScreen('quest');
+            }
+
+            handleOptionClick(index, option, mission) {
+                if (this.isLockedForAdvance) return;
+
+                const fbBox = document.getElementById('feedback-box');
+                const fbIcon = document.getElementById('feedback-icon');
+                const fbText = document.getElementById('feedback-text');
+
+                // Personal choice question (Day 3 Mission 2)
+                if (mission.type === 'personal_choice') {
+                    this.isLockedForAdvance = true;
+                    this.stars++;
+                    this.updateHUD();
+                    sound.correct();
+
+                    fbBox.className = 'p-4 rounded-2xl border-2 bg-emerald-50 border-emerald-300 text-emerald-900 font-bold flex items-center gap-3';
+                    fbIcon.innerText = '🎉';
+                    fbText.innerText = `Great choice! ${option.choiceMsg} ${mission.explanation}`;
+                    fbBox.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        this.completeDay();
+                    }, 2200);
+                    return;
+                }
+
+                // MCQ Questions
+                if (option.correct) {
+                    this.isLockedForAdvance = true;
+                    this.stars++;
+                    this.updateHUD();
+                    sound.correct();
+
+                    fbBox.className = 'p-4 rounded-2xl border-2 bg-emerald-50 border-emerald-300 text-emerald-900 font-bold flex items-center gap-3';
+                    fbIcon.innerText = '🎉';
+                    fbText.innerText = 'Correct! Well done!';
+                    fbBox.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        this.advanceMission();
+                    }, 1400);
+
+                } else {
+                    // Incorrect Choice
+                    sound.tryAgain();
+                    fbBox.className = 'p-4 rounded-2xl border-2 bg-amber-50 border-amber-300 text-amber-900 font-bold flex items-center gap-3';
+                    fbIcon.innerText = '💡';
+                    fbText.innerText = `Almost! Try again. ${mission.hint}`;
+                    fbBox.classList.remove('hidden');
+                }
+            }
+
+            advanceMission() {
+                if (this.currentMissionIndex < 1) {
+                    this.currentMissionIndex++;
+                    this.loadMission();
+                } else {
+                    this.completeDay();
+                }
+            }
+
+            completeDay() {
+                const dayKey = `day${this.currentDayIndex}`;
+                const dayData = questData[dayKey];
+
+                document.getElementById('day-complete-title').innerText = dayData.completionTitle;
+                document.getElementById('day-complete-subtitle').innerText = `You earned 2 Stars for Day ${this.currentDayIndex}!`;
+                document.getElementById('day-complete-explanation').innerText = dayData.completionText;
+
+                this.showScreen('day-complete');
+            }
+
+            continueToNextDay() {
+                if (this.currentDayIndex < 3) {
+                    this.currentDayIndex++;
+                    this.currentMissionIndex = 0;
+                    this.loadMission();
+                } else {
+                    // All 3 Days Complete -> Go to Summary
+                    this.showScreen('summary');
+                }
+            }
+
+            showFinalScreen() {
+                document.getElementById('final-star-text').innerText = `${this.stars} out of 6 Stars Collected!`;
+                this.showScreen('final');
+            }
+
+            saveReflection() {
+                const val = document.getElementById('reflection-input').value;
+                if (val.trim().length > 0) {
+                    document.getElementById('reflection-msg').classList.remove('hidden');
+                    sound.correct();
+                }
+            }
+
+            restartQuest() {
+                this.startQuest();
+            }
+        }
+
+        // Initialize Game Instance on window load
+        let game;
+        window.onload = function() {
+            game = new DailyQuestGame();
+            game.init();
+        };
+    </script>
+</body>
+</html>
